@@ -402,6 +402,59 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
         </div>
         <button class="btn btn-success" id="bc-submit-btn" onclick="submitBcStocktake()" style="width:100%; margin-top:12px; display:none">📤 棚卸し結果を送信</button>
       </div>
+
+      <!-- ãã¹ã¿ãã¼ã¿è¿½å  -->
+      <div style="margin-top:20px; padding-top:16px; border-top:2px solid var(--border)">
+        <button class="btn btn-outline" id="bc-master-add-toggle" onclick="toggleBcMasterAddMode()" style="width:100%">â ãã¹ã¿ãã¼ã¿è¿½å </button>
+      </div>
+      <div id="bc-master-add-form" style="display:none; margin-top:14px">
+        <div class="card" style="border:2px solid var(--primary); background:var(--primary-lighter)">
+          <h2 style="font-size:14px; margin-bottom:12px">ð ãã¼ã³ã¼ããã¹ã¿ç»éÊ</h2>
+          <p style="font-size:12px; color:var(--text2); margin-bottom:12px">ãã¼ã³ã¼ããã¹ã­ã£ã³ããã¨JISã³ã¼ããèªåå¥åããã¾ããæåå¥åãå¯è½ã§ãã</p>
+
+          <div class="scan-area" id="bc-master-scan-area" onclick="focusBcMasterScanInput()" style="cursor:pointer; margin-bottom:14px; padding:12px">
+            <div class="scan-icon" id="bc-master-scan-icon" style="font-size:24px">ð·</div>
+            <div class="scan-label" id="bc-master-scan-label" style="font-size:13px">ã¿ãããã¦ãã¼ã³ã¼ãã¹ã­ã£ã³</div>
+          </div>
+          <input type="text" id="bc-master-scan-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="position:fixed; top:-100px; left:0; width:10px; height:10px; opacity:0.01; z-index:1; caret-color:transparent;">
+
+          <div class="form-group">
+            <label>JISã³ã¼ãï¼ãã¼ã³ã¼ãçªå·ï¼</label>
+            <input type="text" id="bc-master-jis" placeholder="ãã¼ã³ã¼ãã¹ã­ã£ã³ã¾ãã¯æå¥å">
+          </div>
+          <div class="form-group">
+            <label>åç®å</label>
+            <input type="text" id="bc-master-name" placeholder="ä¾ï¼ãã¹ã¿ãªã«ï¼ç½ï¼">
+          </div>
+          <div class="form-group">
+            <label>ã«ãã´ãª</label>
+            <select id="bc-master-category" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:14px; background:var(--bg)">
+              <option value="">-- é¸æãã¦ãã ãã --</option>
+              <option value="ã¿ãªã«">ã¿ãªã«</option>
+              <option value="ã¢ã¡ããã£">ã¢ã¡ããã£</option>
+              <option value="ãªãã³">ãªãã³</option>
+              <option value="æ¶èå">æ¶èå</option>
+              <option value="ãã®ä»">ãã®ä»</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>åä½</label>
+            <select id="bc-master-unit" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:14px; background:var(--bg)">
+              <option value="æ">æ</option>
+              <option value="å">å</option>
+              <option value="æ¬">æ¬</option>
+              <option value="ã»ãã">ã»ãã</option>
+              <option value="ç®±">ç®±</option>
+              <option value="è¢">è¢</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:10px">
+            <button class="btn btn-primary" onclick="submitBcMasterItem()" style="flex:1">ç»é²</button>
+            <button class="btn btn-outline" onclick="toggleBcMasterAddMode()" style="flex:1">éãã</button>
+          </div>
+          <div id="bc-master-add-result" style="margin-top:10px; display:none"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1779,6 +1832,185 @@ function submitBcStocktake() {
     submitBtn.disabled = false;
     submitBtn.textContent = t('bc.submit');
     toast(t('bc.submitError'), 'error');
+  });
+}
+
+// ==================== ãã¼ã³ã¼ããã¹ã¿è¿½å  ====================
+
+var bcMasterAddMode = false;
+var bcMasterScanDone = false; // 1åã¹ã­ã£ã³ãããtrue
+
+function toggleBcMasterAddMode() {
+  var form = document.getElementById('bc-master-add-form');
+  var btn = document.getElementById('bc-master-add-toggle');
+  if (form.style.display === 'none') {
+    form.style.display = 'block';
+    btn.textContent = 'â ãã¹ã¿è¿½å ãéãã';
+    bcMasterAddMode = true;
+    bcMasterScanDone = false;
+    resetBcMasterForm();
+    // ãã¼ã³ã¼ãã¹ã­ã£ã³å¥åãæºå
+    startBcMasterScanListener();
+  } else {
+    form.style.display = 'none';
+    btn.textContent = 'â ãã¹ã¿ãã¼ã¿è¿½å ';
+    bcMasterAddMode = false;
+    bcMasterScanDone = false;
+    stopBcMasterScanListener();
+  }
+}
+
+function resetBcMasterForm() {
+  document.getElementById('bc-master-jis').value = '';
+  document.getElementById('bc-master-name').value = '';
+  document.getElementById('bc-master-category').selectedIndex = 0;
+  document.getElementById('bc-master-unit').selectedIndex = 0;
+  document.getElementById('bc-master-add-result').style.display = 'none';
+  bcMasterScanDone = false;
+  var scanArea = document.getElementById('bc-master-scan-area');
+  scanArea.style.borderColor = '';
+  scanArea.style.background = '';
+  document.getElementById('bc-master-scan-icon').textContent = 'ð·';
+  document.getElementById('bc-master-scan-label').textContent = 'ã¿ãããã¦ãã¼ã³ã¼ãã¹ã­ã£ã³';
+}
+
+var _bcMasterScanInterval = null;
+
+function focusBcMasterScanInput() {
+  var input = document.getElementById('bc-master-scan-input');
+  input.value = '';
+  input.focus({ preventScroll: true });
+}
+
+function startBcMasterScanListener() {
+  var input = document.getElementById('bc-master-scan-input');
+  input.value = '';
+  input.readOnly = false;
+  input.disabled = false;
+
+  // keydownãã³ãã©
+  input._masterKeydown = function(e) {
+    if (!bcMasterAddMode) return;
+    if (bcMasterScanDone) return; // 1åéã
+
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      e.preventDefault();
+      var val = input.value.trim();
+      input.value = '';
+      if (val) {
+        applyBcMasterScan(val);
+      }
+    }
+  };
+
+  // inputãã³ãã©ï¼Enterç¡ãã®èªåæ¤åºï¼
+  input._masterInput = function() {
+    if (!bcMasterAddMode || bcMasterScanDone) return;
+    if (input._masterFlush) clearTimeout(input._masterFlush);
+    input._masterFlush = setTimeout(function() {
+      var val = input.value.trim();
+      if (val && val.length >= 8) {
+        input.value = '';
+        applyBcMasterScan(val);
+      }
+    }, 120);
+  };
+
+  input.addEventListener('keydown', input._masterKeydown);
+  input.addEventListener('input', input._masterInput);
+
+  // å®æãã©ã¼ã«ã¹
+  _bcMasterScanInterval = setInterval(function() {
+    if (bcMasterAddMode && !bcMasterScanDone) {
+      var ae = document.activeElement;
+      // JISå¥åæ¬ãä»ã®ãã©ã¼ã è¦ç´ ã«ãã©ã¼ã«ã¹ãããå ´åã¯ã¹ã­ãã
+      if (ae && ae.tagName === 'INPUT' && ae.id !== 'bc-master-scan-input') return;
+      if (ae && ae.tagName === 'SELECT') return;
+      if (ae && ae.tagName === 'TEXTAREA') return;
+      input.focus({ preventScroll: true });
+    }
+  }, 500);
+}
+
+function stopBcMasterScanListener() {
+  var input = document.getElementById('bc-master-scan-input');
+  if (input._masterKeydown) input.removeEventListener('keydown', input._masterKeydown);
+  if (input._masterInput) input.removeEventListener('input', input._masterInput);
+  if (input._masterFlush) clearTimeout(input._masterFlush);
+  if (_bcMasterScanInterval) { clearInterval(_bcMasterScanInterval); _bcMasterScanInterval = null; }
+}
+
+function applyBcMasterScan(code) {
+  if (bcMasterScanDone) return;
+  bcMasterScanDone = true;
+
+  // JISã³ã¼ãæ¬ã«èªåå¥å
+  document.getElementById('bc-master-jis').value = code;
+
+  // ã¹ã­ã£ã³ã¨ãªã¢ãæåè¡¨ç¤º
+  var scanArea = document.getElementById('bc-master-scan-area');
+  scanArea.style.borderColor = 'var(--success)';
+  scanArea.style.background = 'var(--success-light)';
+  document.getElementById('bc-master-scan-icon').textContent = 'â';
+  document.getElementById('bc-master-scan-label').textContent = 'èª­ã¿åãå®äº: ' + code;
+
+  // ãã¹ã¿ã«æ¢ã«å­å¨ããããã§ãã¯
+  if (bcMasterMap[code]) {
+    var existing = bcMasterMap[code];
+    toast('ãã®JISã³ã¼ãã¯æ¢ã«ç»é²æ¸ã¿ã§ã: ' + existing.itemName, 'warning');
+    scanArea.style.borderColor = 'var(--warning)';
+    scanArea.style.background = 'var(--warning-light)';
+    document.getElementById('bc-master-scan-icon').textContent = 'â ï¸';
+  } else {
+    toast('JISã³ã¼ãèª­ã¿åãå®äº: ' + code, 'ok');
+  }
+
+  // åç®åãã£ã¼ã«ãã«ãã©ã¼ã«ã¹
+  setTimeout(function() {
+    document.getElementById('bc-master-name').focus();
+  }, 100);
+}
+
+function submitBcMasterItem() {
+  var jisCode = document.getElementById('bc-master-jis').value.trim();
+  var itemName = document.getElementById('bc-master-name').value.trim();
+  var category = document.getElementById('bc-master-category').value;
+  var unit = document.getElementById('bc-master-unit').value;
+
+  if (!jisCode) { toast('JISã³ã¼ããå¥åãã¦ãã ãã', 'warning'); return; }
+  if (!itemName) { toast('åç®åãå¥åãã¦ãã ãã', 'warning'); return; }
+  if (!category) { toast('ã«ãã´ãªãé¸æãã¦ãã ãã', 'warning'); return; }
+
+  var resultEl = document.getElementById('bc-master-add-result');
+  resultEl.innerHTML = '<p style="color:var(--text2); font-size:12px">ç»é²ä¸­...</p>';
+  resultEl.style.display = 'block';
+
+  apiPost({
+    action: 'addBarcodeMaster',
+    jisCode: jisCode,
+    itemName: itemName,
+    category: category,
+    unit: unit
+  }).then(function(data) {
+    if (data && data.success) {
+      resultEl.innerHTML = '<p style="color:var(--success); font-size:13px; font-weight:700">â ' + data.message + '</p>';
+      toast(data.message, 'ok');
+      // ã­ã¼ã«ã«ã®ãã¹ã¿ãã¼ã¿ãæ´æ°
+      var newItem = data.item || { jisCode: jisCode, itemName: itemName, category: category, unit: unit };
+      bcMasterData.push(newItem);
+      bcMasterMap[newItem.jisCode] = newItem;
+      // ãã©ã¼ã ããªã»ãããã¦æ¬¡ã®å¥åãåãä»ã
+      setTimeout(function() {
+        resetBcMasterForm();
+      }, 1500);
+    } else {
+      var errMsg = data ? data.error : 'ä¸æãªã¨ã©ã¼';
+      resultEl.innerHTML = '<p style="color:var(--danger); font-size:13px; font-weight:700">â ' + errMsg + '</p>';
+      toast(errMsg, 'error');
+    }
+  }).catch(function(err) {
+    resultEl.innerHTML = '<p style="color:var(--danger); font-size:13px">éä¿¡ã¨ã©ã¼: ' + err.message + '</p>';
+    toast('éä¿¡ã¨ã©ã¼', 'error');
   });
 }
 
