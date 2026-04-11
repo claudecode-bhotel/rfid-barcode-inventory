@@ -403,62 +403,58 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
         <button class="btn btn-success" id="bc-submit-btn" onclick="submitBcStocktake()" style="width:100%; margin-top:12px; display:none">📤 棚卸し結果を送信</button>
       </div>
 
-      <!-- ãã¹ã¿ãã¼ã¿è¿½å  -->
+      <!-- マスタデータ追加 -->
       <div style="margin-top:20px; padding-top:16px; border-top:2px solid var(--border)">
-        <button class="btn btn-outline" id="bc-master-add-toggle" onclick="toggleBcMasterAddMode()" style="width:100%">â ãã¹ã¿ãã¼ã¿è¿½å </button>
+        <button class="btn btn-outline" id="bc-master-add-toggle" onclick="toggleBcMasterAddMode()" style="width:100%">➕ マスタデータ追加</button>
       </div>
       <div id="bc-master-add-form" style="display:none; margin-top:14px">
         <div class="card" style="border:2px solid var(--primary); background:var(--primary-lighter)">
-          <h2 style="font-size:14px; margin-bottom:12px">ð ãã¼ã³ã¼ããã¹ã¿ç»éÊ</h2>
-          <p style="font-size:12px; color:var(--text2); margin-bottom:12px">ãã¼ã³ã¼ããã¹ã­ã£ã³ããã¨JISã³ã¼ããèªåå¥åããã¾ããæåå¥åãå¯è½ã§ãã</p>
+          <h2 style="font-size:14px; margin-bottom:12px">📝 バーコードマスタ登録</h2>
+          <p style="font-size:12px; color:var(--text2); margin-bottom:12px">バーコードをスキャンするとJISコードが自動入力されます。手動入力も可能です。</p>
 
           <div class="scan-area" id="bc-master-scan-area" onclick="focusBcMasterScanInput()" style="cursor:pointer; margin-bottom:14px; padding:12px">
-            <div class="scan-icon" id="bc-master-scan-icon" style="font-size:24px">ð·</div>
-            <div class="scan-label" id="bc-master-scan-label" style="font-size:13px">ã¿ãããã¦ãã¼ã³ã¼ãã¹ã­ã£ã³</div>
+            <div class="scan-icon" id="bc-master-scan-icon" style="font-size:24px">📷</div>
+            <div class="scan-label" id="bc-master-scan-label" style="font-size:13px">タップしてバーコードスキャン</div>
           </div>
           <input type="text" id="bc-master-scan-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="position:fixed; top:-100px; left:0; width:10px; height:10px; opacity:0.01; z-index:1; caret-color:transparent;">
 
           <div class="form-group">
-            <label>JISã³ã¼ãï¼ãã¼ã³ã¼ãçªå·ï¼</label>
-            <input type="text" id="bc-master-jis" placeholder="ãã¼ã³ã¼ãã¹ã­ã£ã³ã¾ãã¯æå¥å">
+            <label>JISコード（バーコード番号）</label>
+            <input type="text" id="bc-master-jis" placeholder="バーコードスキャンまたは手入力">
           </div>
           <div class="form-group">
-            <label>åç®å</label>
-            <input type="text" id="bc-master-name" placeholder="ä¾ï¼ãã¹ã¿ãªã«ï¼ç½ï¼">
+            <label>品目名</label>
+            <input type="text" id="bc-master-name" placeholder="例：バスタオル（白）">
           </div>
           <div class="form-group">
-            <label>ã«ãã´ãª</label>
+            <label>カテゴリ</label>
             <select id="bc-master-category" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:14px; background:var(--bg)">
-              <option value="">-- é¸æãã¦ãã ãã --</option>
-              <option value="ã¿ãªã«">ã¿ãªã«</option>
-              <option value="ã¢ã¡ããã£">ã¢ã¡ããã£</option>
-              <option value="ãªãã³">ãªãã³</option>
-              <option value="æ¶èå">æ¶èå</option>
-              <option value="ãã®ä»">ãã®ä»</option>
+              <option value="">-- 選択してください --</option>
+              <option value="タオル">タオル</option>
+              <option value="アメニティ">アメニティ</option>
+              <option value="リネン">リネン</option>
+              <option value="消耗品">消耗品</option>
+              <option value="その他">ぞの他</option>
             </select>
           </div>
           <div class="form-group">
-            <label>åä½</label>
+            <label>単位</label>
             <select id="bc-master-unit" style="width:100%; padding:10px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:14px; background:var(--bg)">
-              <option value="æ">æ</option>
-              <option value="å">å</option>
-              <option value="æ¬">æ¬</option>
-              <option value="ã»ãã">ã»ãã</option>
-              <option value="ç®±">ç®±</option>
-              <option value="è¢">è¢</option>
+              <option value="枚">枚</option>
+              <option value="個">個</option>
+              <option value="本">本</option>
+              <option value="セット">セット</option>
+              <option value="箱">箱</option>
+              <option value="袋">袋</option>
             </select>
           </div>
           <div style="display:flex; gap:10px">
-            <button class="btn btn-primary" onclick="submitBcMasterItem()" style="flex:1">ç»é²</button>
-            <button class="btn btn-outline" onclick="toggleBcMasterAddMode()" style="flex:1">éãã</button>
+            <button class="btn btn-primary" onclick="submitBcMasterItem()" style="flex:1">登録</button>
+            <button class="btn btn-outline" onclick="toggleBcMasterAddMode()" style="flex:1">閉じる</button>
           </div>
           <div id="bc-master-add-result" style="margin-top:10px; display:none"></div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- 棚卸し中のスキャン表示 (RFIDモード用) -->
   <div id="stocktake-scan-area" style="display:none">
     <div class="card">
       <h2 data-i18n="scan.rfidTitle">📡 RFID読み取り</h2>
@@ -1837,23 +1833,25 @@ function submitBcStocktake() {
 
 // ==================== ãã¼ã³ã¼ããã¹ã¿è¿½å  ====================
 
+// ==================== バーコードマスタ追加 ====================
+
 var bcMasterAddMode = false;
-var bcMasterScanDone = false; // 1åã¹ã­ã£ã³ãããtrue
+var bcMasterScanDone = false; // 1回スキャンしたらtrue
 
 function toggleBcMasterAddMode() {
   var form = document.getElementById('bc-master-add-form');
   var btn = document.getElementById('bc-master-add-toggle');
   if (form.style.display === 'none') {
     form.style.display = 'block';
-    btn.textContent = 'â ãã¹ã¿è¿½å ãéãã';
+    btn.textContent = '✕ マスタ追加を閉じる';
     bcMasterAddMode = true;
     bcMasterScanDone = false;
     resetBcMasterForm();
-    // ãã¼ã³ã¼ãã¹ã­ã£ã³å¥åãæºå
+    // バーコードスキャン入力を準備
     startBcMasterScanListener();
   } else {
     form.style.display = 'none';
-    btn.textContent = 'â ãã¹ã¿ãã¼ã¿è¿½å ';
+    btn.textContent = '➕ マスタデータ追加';
     bcMasterAddMode = false;
     bcMasterScanDone = false;
     stopBcMasterScanListener();
@@ -1870,8 +1868,8 @@ function resetBcMasterForm() {
   var scanArea = document.getElementById('bc-master-scan-area');
   scanArea.style.borderColor = '';
   scanArea.style.background = '';
-  document.getElementById('bc-master-scan-icon').textContent = 'ð·';
-  document.getElementById('bc-master-scan-label').textContent = 'ã¿ãããã¦ãã¼ã³ã¼ãã¹ã­ã£ã³';
+  document.getElementById('bc-master-scan-icon').textContent = '📷';
+  document.getElementById('bc-master-scan-label').textContent = 'タップしてバーコードスキャン';
 }
 
 var _bcMasterScanInterval = null;
@@ -1888,10 +1886,10 @@ function startBcMasterScanListener() {
   input.readOnly = false;
   input.disabled = false;
 
-  // keydownãã³ãã©
+  // keydownハンドラ
   input._masterKeydown = function(e) {
     if (!bcMasterAddMode) return;
-    if (bcMasterScanDone) return; // 1åéã
+    if (bcMasterScanDone) return; // 1回限り
 
     if (e.key === 'Enter' || e.keyCode === 13) {
       e.preventDefault();
@@ -1903,7 +1901,7 @@ function startBcMasterScanListener() {
     }
   };
 
-  // inputãã³ãã©ï¼Enterç¡ãã®èªåæ¤åºï¼
+  // inputハンドラ（Enter無しの自動検出）
   input._masterInput = function() {
     if (!bcMasterAddMode || bcMasterScanDone) return;
     if (input._masterFlush) clearTimeout(input._masterFlush);
@@ -1919,11 +1917,11 @@ function startBcMasterScanListener() {
   input.addEventListener('keydown', input._masterKeydown);
   input.addEventListener('input', input._masterInput);
 
-  // å®æãã©ã¼ã«ã¹
+  // 定期フォーカス
   _bcMasterScanInterval = setInterval(function() {
     if (bcMasterAddMode && !bcMasterScanDone) {
       var ae = document.activeElement;
-      // JISå¥åæ¬ãä»ã®ãã©ã¼ã è¦ç´ ã«ãã©ã¼ã«ã¹ãããå ´åã¯ã¹ã­ãã
+      // JIS入力欄や他のフォーム要素にフォーカスがある場合はスキップ
       if (ae && ae.tagName === 'INPUT' && ae.id !== 'bc-master-scan-input') return;
       if (ae && ae.tagName === 'SELECT') return;
       if (ae && ae.tagName === 'TEXTAREA') return;
@@ -1944,28 +1942,28 @@ function applyBcMasterScan(code) {
   if (bcMasterScanDone) return;
   bcMasterScanDone = true;
 
-  // JISã³ã¼ãæ¬ã«èªåå¥å
+  // JISコード欄に自動入力
   document.getElementById('bc-master-jis').value = code;
 
-  // ã¹ã­ã£ã³ã¨ãªã¢ãæåè¡¨ç¤º
+  // スキャンエリアを成功表示
   var scanArea = document.getElementById('bc-master-scan-area');
   scanArea.style.borderColor = 'var(--success)';
   scanArea.style.background = 'var(--success-light)';
-  document.getElementById('bc-master-scan-icon').textContent = 'â';
-  document.getElementById('bc-master-scan-label').textContent = 'èª­ã¿åãå®äº: ' + code;
+  document.getElementById('bc-master-scan-icon').textContent = '✅';
+  document.getElementById('bc-master-scan-label').textContent = '読み取り完了: ' + code;
 
-  // ãã¹ã¿ã«æ¢ã«å­å¨ããããã§ãã¯
+  // マスタに既に存在するかチェック
   if (bcMasterMap[code]) {
     var existing = bcMasterMap[code];
-    toast('ãã®JISã³ã¼ãã¯æ¢ã«ç»é²æ¸ã¿ã§ã: ' + existing.itemName, 'warning');
+    toast('このJISコードは既に登録済みです: ' + existing.itemName, 'warning');
     scanArea.style.borderColor = 'var(--warning)';
     scanArea.style.background = 'var(--warning-light)';
-    document.getElementById('bc-master-scan-icon').textContent = 'â ï¸';
+    document.getElementById('bc-master-scan-icon').textContent = '⚠️';
   } else {
-    toast('JISã³ã¼ãèª­ã¿åãå®äº: ' + code, 'ok');
+    toast('JISコード読み取り完了: ' + code, 'ok');
   }
 
-  // åç®åãã£ã¼ã«ãã«ãã©ã¼ã«ã¹
+  // 品目名フィールドにフォーカス
   setTimeout(function() {
     document.getElementById('bc-master-name').focus();
   }, 100);
@@ -1977,12 +1975,12 @@ function submitBcMasterItem() {
   var category = document.getElementById('bc-master-category').value;
   var unit = document.getElementById('bc-master-unit').value;
 
-  if (!jisCode) { toast('JISã³ã¼ããå¥åãã¦ãã ãã', 'warning'); return; }
-  if (!itemName) { toast('åç®åãå¥åãã¦ãã ãã', 'warning'); return; }
-  if (!category) { toast('ã«ãã´ãªãé¸æãã¦ãã ãã', 'warning'); return; }
+  if (!jisCode) { toast('JISコードを入力してください', 'warning'); return; }
+  if (!itemName) { toast('品目名を入力してください', 'warning'); return; }
+  if (!category) { toast('カテゴリを選択してください', 'warning'); return; }
 
   var resultEl = document.getElementById('bc-master-add-result');
-  resultEl.innerHTML = '<p style="color:var(--text2); font-size:12px">ç»é²ä¸­...</p>';
+  resultEl.innerHTML = '<p style="color:var(--text2); font-size:12px">登録中...</p>';
   resultEl.style.display = 'block';
 
   apiPost({
@@ -1993,24 +1991,24 @@ function submitBcMasterItem() {
     unit: unit
   }).then(function(data) {
     if (data && data.success) {
-      resultEl.innerHTML = '<p style="color:var(--success); font-size:13px; font-weight:700">â ' + data.message + '</p>';
+      resultEl.innerHTML = '<p style="color:var(--success); font-size:13px; font-weight:700">✓ ' + data.message + '</p>';
       toast(data.message, 'ok');
-      // ã­ã¼ã«ã«ã®ãã¹ã¿ãã¼ã¿ãæ´æ°
+      // ローカルのマスタデータも更新
       var newItem = data.item || { jisCode: jisCode, itemName: itemName, category: category, unit: unit };
       bcMasterData.push(newItem);
       bcMasterMap[newItem.jisCode] = newItem;
-      // ãã©ã¼ã ããªã»ãããã¦æ¬¡ã®å¥åãåãä»ã
+      // フォームをリセットして次の入力を受け付け
       setTimeout(function() {
         resetBcMasterForm();
       }, 1500);
     } else {
-      var errMsg = data ? data.error : 'ä¸æãªã¨ã©ã¼';
-      resultEl.innerHTML = '<p style="color:var(--danger); font-size:13px; font-weight:700">â ' + errMsg + '</p>';
+      var errMsg = data ? data.error : '不明なエラー';
+      resultEl.innerHTML = '<p style="color:var(--danger); font-size:13px; font-weight:700">✕ ' + errMsg + '</p>';
       toast(errMsg, 'error');
     }
   }).catch(function(err) {
-    resultEl.innerHTML = '<p style="color:var(--danger); font-size:13px">éä¿¡ã¨ã©ã¼: ' + err.message + '</p>';
-    toast('éä¿¡ã¨ã©ã¼', 'error');
+    resultEl.innerHTML = '<p style="color:var(--danger); font-size:13px">通信エラー: ' + err.message + '</p>';
+    toast('通信エラー', 'error');
   });
 }
 
