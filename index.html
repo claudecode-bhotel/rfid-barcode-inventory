@@ -1659,12 +1659,17 @@ function focusBarcodeInput() {
   document.getElementById('bc-scan-area').style.borderColor = 'var(--primary)';
   document.getElementById('bc-scan-area').style.background = 'var(--primary-light)';
 
-  // フォーカス維持
+  // フォーカス維持（ただし数量入力・実行者名・マスタ追加フォーム操作中は奪わない）
   if (bcFocusInterval) clearInterval(bcFocusInterval);
   bcFocusInterval = setInterval(function() {
-    if (document.activeElement !== input && document.getElementById('stocktake-barcode-mode').style.display !== 'none') {
-      input.focus({ preventScroll: true });
-    }
+    var ae = document.activeElement;
+    if (ae === input) return; // 既にフォーカス済み
+    if (document.getElementById('stocktake-barcode-mode').style.display === 'none') return;
+    // ユーザーが他の入力欄を操作中ならフォーカスを奪わない
+    if (ae && ae.tagName === 'INPUT' && ae.id !== 'bc-scan-input') return;
+    if (ae && ae.tagName === 'SELECT') return;
+    if (ae && ae.tagName === 'TEXTAREA') return;
+    input.focus({ preventScroll: true });
   }, 500);
 
   // 入力イベント
