@@ -526,7 +526,7 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
     <h2 data-i18n="settings.apiTitle">API設定</h2>
     <div class="form-group">
       <label data-i18n="settings.apiUrl">GAS Web App URL</label>
-      <input type="url" id="api-url" placeholder="https://script.google.com/macros/s/.../exec">
+      <input type="text" id="api-url" inputmode="url" placeholder="https://script.google.com/macros/s/.../exec">
     </div>
     <button class="btn btn-sm btn-primary" onclick="saveApiUrl()" data-i18n="settings.saveTest">保存して接続テスト</button>
   </div>
@@ -886,6 +886,24 @@ function toggleLanguage() {
 // ==================== 初期化 ====================
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('api-url').value = API_URL;
+
+  // api-url入力欄でのEnterキーによるページ遷移を防止
+  document.getElementById('api-url').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      e.preventDefault();
+      e.stopPropagation();
+      saveApiUrl(); // Enter押下時は保存＆テスト実行
+    }
+  });
+
+  // バーコードスキャン中の意図しないページ遷移を防止
+  window.addEventListener('beforeunload', function(e) {
+    if (bcFocusInterval) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
   if (API_URL) {
     checkApiConnection();
     loadProperties();
@@ -962,8 +980,24 @@ document.addEventListener('DOMContentLoaded', function() {
   var GLOBAL_KEY_TIMEOUT = 100; // 100ms入力停止でバッファ確定
 
   document.addEventListener('keydown', function(e) {
-    // フォーム入力中（テキストエリアや通常の入力フィールド）は無視
     var ae = document.activeElement;
+
+    // バーコード棚卸しモード中はapi-url等でのEnterによるナビゲーションを常にブロック
+    if (bcFocusInterval && (e.key === 'Enter' || e.keyCode === 13)) {
+      if (ae && ae.tagName === 'INPUT' && ae.id !== 'scan-input' && ae.id !== 'bc-scan-input'
+          && ae.id !== 'bc-qty-input' && ae.id !== 'bc-master-scan-input'
+          && ae.id !== 'bc-master-name' && ae.id !== 'bc-master-code' && ae.id !== 'bc-master-cat'
+          && ae.id !== 'stocktake-person') {
+        e.preventDefault();
+        e.stopPropagation();
+        // フォーカスをバーコード入力に戻す
+        var bcInput = document.getElementById('bc-scan-input');
+        if (bcInput) bcInput.focus({ preventScroll: true });
+        return;
+      }
+    }
+
+    // フォーム入力中（テキストエリアや通常の入力フィールド）は無視
     if (ae && ae.tagName === 'TEXTAREA') return;
     if (ae && ae.tagName === 'INPUT' && ae.id !== 'scan-input' && ae.id !== 'bc-scan-input') return;
 
