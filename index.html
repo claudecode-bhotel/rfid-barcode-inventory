@@ -159,10 +159,7 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
 .bc-scan-result { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--success-light); border-radius: var(--radius-sm); margin-bottom: 12px; border: 1px solid rgba(52,199,89,.15); }
 .bc-scan-result .bc-item-name { font-size: 15px; font-weight: 700; color: var(--success); }
 .bc-scan-result .bc-item-cat { font-size: 11px; color: var(--text2); }
-.bc-qty-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
-.bc-qty-btn { padding: 14px 8px; border: 2px solid var(--border); border-radius: var(--radius-sm); background: var(--card); font-size: 18px; font-weight: 800; cursor: pointer; transition: all .15s; text-align: center; }
-.bc-qty-btn:active { transform: scale(.95); }
-.bc-qty-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+/* bc-qty-grid/btn removed: now uses numeric text input */
 .bc-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg); border-radius: 10px; margin-bottom: 6px; }
 .bc-list-item .bc-list-name { font-size: 13px; font-weight: 600; }
 .bc-list-item .bc-list-cat { font-size: 11px; color: var(--text2); }
@@ -193,16 +190,6 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
 /* ========== テスト入力 ========== */
 .test-section { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
 .test-section summary { font-size: 13px; color: var(--text2); cursor: pointer; font-weight: 600; }
-
-/* Debug Panel */
-#debug-panel { position: fixed; bottom: 0; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 11px; z-index: 9999; padding: 8px; display: none; }
-#debug-panel.show { display: block; }
-#debug-toggle { position: fixed; bottom: 10px; right: 10px; z-index: 10000; background: #333; color: #0f0; border: 1px solid #0f0; border-radius: 50%; width: 40px; height: 40px; font-size: 16px; cursor: pointer; }
-#debug-panel .log-line { border-bottom: 1px solid #333; padding: 2px 0; }
-.log-key { color: #ff0; }
-.log-focus { color: #0ff; }
-.log-tag { color: #f0f; }
-
 </style>
 </head>
 <body>
@@ -363,7 +350,7 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
         <div class="scan-icon">📊</div>
         <div class="scan-label" id="bc-scan-label">タップしてバーコードスキャン開始</div>
       </div>
-      <input type="text" id="bc-scan-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input type="text" id="bc-scan-input" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 
       <!-- スキャン結果 → 数量選択 -->
       <div id="bc-scanned-item" style="display:none">
@@ -373,14 +360,11 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
             <div class="bc-item-cat" id="bc-scanned-cat">-</div>
           </div>
         </div>
-        <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px">数量を選択</label>
-        <div class="bc-qty-grid" id="bc-qty-grid">
-          <button class="bc-qty-btn" onclick="selectBcQty(this, 1)">1</button>
-          <button class="bc-qty-btn" onclick="selectBcQty(this, 5)">5</button>
-          <button class="bc-qty-btn" onclick="selectBcQty(this, 10)">10</button>
-          <button class="bc-qty-btn" onclick="selectBcQty(this, 20)">20</button>
-          <button class="bc-qty-btn" onclick="selectBcQty(this, 50)">50</button>
-          <button class="bc-qty-btn" onclick="selectBcQty(this, 100)">100</button>
+        <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px">数量を入力</label>
+        <div style="display:flex; gap:8px; margin-bottom:12px">
+          <input type="text" id="bc-qty-input" inputmode="numeric" pattern="[0-9]*" placeholder="数量" autocomplete="off"
+            style="flex:1; padding:14px 12px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:18px; font-weight:800; text-align:center; background:var(--card); outline:none; transition:border-color .2s;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" oninput="onBcQtyInput()">
         </div>
         <button class="btn btn-primary" id="bc-add-btn" onclick="addBcItem()" style="width:100%" disabled>リストに追加</button>
       </div>
@@ -416,7 +400,7 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
             <div class="scan-icon" id="bc-master-scan-icon" style="font-size:24px">📷</div>
             <div class="scan-label" id="bc-master-scan-label" style="font-size:13px">タップしてバーコードスキャン</div>
           </div>
-          <input type="text" id="bc-master-scan-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="position:fixed; top:-100px; left:0; width:10px; height:10px; opacity:0.01; z-index:1; caret-color:transparent;">
+          <input type="text" id="bc-master-scan-input" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="position:fixed; top:-100px; left:0; width:10px; height:10px; opacity:0.01; z-index:1; caret-color:transparent;">
 
           <div class="form-group">
             <label>JISコード（バーコード番号）</label>
@@ -455,6 +439,10 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
           <div id="bc-master-add-result" style="margin-top:10px; display:none"></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 棚卸し中のスキャン表示 (RFIDモード用) -->
   <div id="stocktake-scan-area" style="display:none">
     <div class="card">
       <h2 data-i18n="scan.rfidTitle">📡 RFID読み取り</h2>
@@ -964,6 +952,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }, AUTO_FLUSH_MS);
   });
 
+  // ==================== グローバルキーストロークバッファ ====================
+  // DataWedge Keystroke出力がどの要素にフォーカスがあっても
+  // キャプチャできるよう、document全体でキー入力を監視
+  var _globalKeyBuf = '';
+  var _globalKeyTimer = null;
+  var GLOBAL_KEY_TIMEOUT = 100; // 100ms入力停止でバッファ確定
+
+  document.addEventListener('keydown', function(e) {
+    // フォーム入力中（テキストエリアや通常の入力フィールド）は無視
+    var ae = document.activeElement;
+    if (ae && ae.tagName === 'TEXTAREA') return;
+    if (ae && ae.tagName === 'INPUT' && ae.id !== 'scan-input' && ae.id !== 'bc-scan-input') return;
+
+    // scan-inputまたはbc-scan-inputにフォーカスがある場合は既存ハンドラに任せる
+    if (ae && (ae.id === 'scan-input' || ae.id === 'bc-scan-input')) return;
+
+    // スキャン中・棚卸し中・倉庫作業中でなければ無視
+    if (!isScanning && currentMode !== 'stocktake' && currentMode !== 'warehouse') return;
+
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      e.preventDefault();
+      if (_globalKeyTimer) clearTimeout(_globalKeyTimer);
+      var val = _globalKeyBuf.trim();
+      _globalKeyBuf = '';
+      if (val) {
+        console.log('[GlobalKeyCap] Enter確定:', val);
+        _queueTag(val);
+      }
+      return;
+    }
+
+    // 印字可能文字のみバッファに追加
+    if (e.key && e.key.length === 1) {
+      _globalKeyBuf += e.key;
+      if (_globalKeyTimer) clearTimeout(_globalKeyTimer);
+      _globalKeyTimer = setTimeout(function() {
+        var val = _globalKeyBuf.trim();
+        if (val && val.length >= 16) {
+          console.log('[GlobalKeyCap] タイムアウト確定:', val);
+          _queueTag(val);
+        }
+        _globalKeyBuf = '';
+      }, GLOBAL_KEY_TIMEOUT);
+    }
+  });
+
   // 実行者名をlocalStorageから復元
   var savedOp = localStorage.getItem('rfid_operator');
   if (savedOp) {
@@ -1040,55 +1074,17 @@ function toggleScan() {
   else startScan();
 }
 
-
-// ==================== グローバルキーストロークバッファ ====================
-var _globalKeyBuf = '';
-var _globalKeyTimer = null;
-var GLOBAL_KEY_TIMEOUT = 100;
-
-document.addEventListener('keydown', function(e) {
-  var ae = document.activeElement;
-  if (ae && ae.tagName === 'TEXTAREA') return;
-  if (ae && ae.tagName === 'INPUT' && ae.id !== 'scan-input' && ae.id !== 'bc-scan-input') return;
-  if (ae && (ae.id === 'scan-input' || ae.id === 'bc-scan-input')) return;
-  if (!isScanning && currentMode !== 'stocktake' && currentMode !== 'warehouse') return;
-
-  if (e.key === 'Enter' || e.keyCode === 13) {
-    e.preventDefault();
-    if (_globalKeyTimer) clearTimeout(_globalKeyTimer);
-    var val = _globalKeyBuf.trim();
-    _globalKeyBuf = '';
-    if (val) {
-      console.log('[GlobalKeyCap] Enter確定:', val);
-      _queueTag(val);
-    }
-    return;
-  }
-
-  if (e.key && e.key.length === 1) {
-    _globalKeyBuf += e.key;
-    if (_globalKeyTimer) clearTimeout(_globalKeyTimer);
-    _globalKeyTimer = setTimeout(function() {
-      var val = _globalKeyBuf.trim();
-      if (val && val.length >= 16) {
-        console.log('[GlobalKeyCap] タイムアウト確定:', val);
-        _queueTag(val);
-      }
-      _globalKeyBuf = '';
-    }, GLOBAL_KEY_TIMEOUT);
-  }
-});
-
 function startScan() {
   isScanning = true;
   var area = document.getElementById('scan-area');
   area.classList.add('scanning');
-  document.getElementById('scan-icon').textContent = '\u{1F504}';
+  document.getElementById('scan-icon').textContent = '🔄';
   document.getElementById('scan-label').textContent = t('scan.scanning');
   document.getElementById('scan-count').style.display = 'block';
 
   var input = document.getElementById('scan-input');
   input.value = '';
+  // Android/Zebraブラウザ対応: readOnlyを一時的に解除してからフォーカス
   input.readOnly = false;
   input.disabled = false;
   input.style.position = 'fixed';
@@ -1708,22 +1704,28 @@ function processBarcodeInput(code) {
   document.getElementById('bc-scanned-cat').textContent = item.category + ' / ' + item.unit;
   document.getElementById('bc-scanned-item').style.display = 'block';
   document.getElementById('bc-add-btn').disabled = true;
-  // 数量ボタンの選択状態をリセット
-  document.querySelectorAll('.bc-qty-btn').forEach(function(btn) { btn.classList.remove('selected'); });
+  // 数量入力欄をリセット
+  document.getElementById('bc-qty-input').value = '';
   // スキャンエリアを成功表示
   document.getElementById('bc-scan-area').style.borderColor = 'var(--success)';
   document.getElementById('bc-scan-area').style.background = 'var(--success-light)';
   document.getElementById('bc-scan-label').textContent = '✓ ' + item.itemName;
 }
 
-function selectBcQty(btn, qty) {
-  bcSelectedQty = qty;
-  document.querySelectorAll('.bc-qty-btn').forEach(function(b) { b.classList.remove('selected'); });
-  btn.classList.add('selected');
-  document.getElementById('bc-add-btn').disabled = false;
+function onBcQtyInput() {
+  var raw = document.getElementById('bc-qty-input').value;
+  // 半角数字のみ許可（それ以外を除去）
+  var cleaned = raw.replace(/[^0-9]/g, '');
+  if (cleaned !== raw) document.getElementById('bc-qty-input').value = cleaned;
+  var qty = parseInt(cleaned, 10);
+  bcSelectedQty = (qty > 0) ? qty : 0;
+  document.getElementById('bc-add-btn').disabled = !(bcCurrentItem && bcSelectedQty > 0);
 }
 
 function addBcItem() {
+  // 入力値を再取得（念のため）
+  var qtyVal = parseInt(document.getElementById('bc-qty-input').value, 10);
+  if (qtyVal > 0) bcSelectedQty = qtyVal;
   if (!bcCurrentItem || bcSelectedQty <= 0) return;
   // 同じ品目がリストにあれば数量加算
   var existing = bcStocktakeList.find(function(i) { return i.jisCode === bcCurrentItem.jisCode; });
@@ -1741,13 +1743,14 @@ function addBcItem() {
   toast(bcCurrentItem.itemName + ' x' + bcSelectedQty + ' ' + t('bc.added'), 'ok');
   bcCurrentItem = null;
   bcSelectedQty = 0;
+  document.getElementById('bc-qty-input').value = '';
   document.getElementById('bc-scanned-item').style.display = 'none';
   // スキャンエリアをリセット
   document.getElementById('bc-scan-area').style.borderColor = '';
   document.getElementById('bc-scan-area').style.background = '';
   document.getElementById('bc-scan-label').textContent = t('bc.scanPrompt');
   updateBcListDisplay();
-  // 再度フォーカス
+  // 再度スキャン入力にフォーカス
   var input = document.getElementById('bc-scan-input');
   input.value = '';
   input.focus({ preventScroll: true });
@@ -1830,8 +1833,6 @@ function submitBcStocktake() {
     toast(t('bc.submitError'), 'error');
   });
 }
-
-// ==================== ãã¼ã³ã¼ããã¹ã¿è¿½å  ====================
 
 // ==================== バーコードマスタ追加 ====================
 
@@ -2272,56 +2273,6 @@ function toast(msg, type) {
   clearTimeout(window._toastTimer);
   window._toastTimer = setTimeout(function() { el.className = 'toast'; }, 3000);
 }
-
-// ==================== デバッグパネル ====================
-var _debugLog = [];
-function debugLog(type, msg) {
-  var ts = new Date().toLocaleTimeString();
-  _debugLog.push({ts: ts, type: type, msg: msg});
-  if (_debugLog.length > 100) _debugLog.shift();
-  var panel = document.getElementById('debug-panel');
-  if (!panel) return;
-  var cls = type === 'key' ? 'log-key' : type === 'focus' ? 'log-focus' : 'log-tag';
-  panel.innerHTML += '<div class="log-line ' + cls + '">[' + ts + '] ' + type + ': ' + msg + '</div>';
-  panel.scrollTop = panel.scrollHeight;
-}
-
-// 全キーイベントを監視
-document.addEventListener('keydown', function(e) {
-  debugLog('key', 'keydown key=' + e.key + ' code=' + e.code + ' target=' + (e.target.id || e.target.tagName));
-}, true);
-
-document.addEventListener('keyup', function(e) {
-  debugLog('key', 'keyup key=' + e.key + ' target=' + (e.target.id || e.target.tagName));
-}, true);
-
-// input イベント監視
-document.addEventListener('input', function(e) {
-  debugLog('input', 'input target=' + (e.target.id || e.target.tagName) + ' value=' + (e.target.value || '').substring(0, 50));
-}, true);
-
-// フォーカス監視
-document.addEventListener('focus', function(e) {
-  debugLog('focus', 'focus -> ' + (e.target.id || e.target.tagName));
-}, true);
-
-document.addEventListener('blur', function(e) {
-  debugLog('focus', 'blur <- ' + (e.target.id || e.target.tagName));
-}, true);
-
-// DataWedge Intent受信監視 (WebView Intent Bridge)
-if (window.datawedge) {
-  debugLog('info', 'DataWedge bridge detected');
-}
-
-// 起動ログ
-debugLog('info', 'Debug panel initialized. Tap DB button to show/hide.');
-debugLog('info', 'Focus: ' + (document.activeElement ? document.activeElement.id || document.activeElement.tagName : 'none'));
-
 </script>
-
-<div id="debug-panel"></div>
-<button id="debug-toggle" onclick="var p=document.getElementById('debug-panel');p.classList.toggle('show');">DB</button>
-
 </body>
 </html>
