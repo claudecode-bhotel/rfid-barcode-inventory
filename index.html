@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="color-scheme" content="light">
 <title>RFID タオル在庫管理</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>📦</text></svg>">
 <style>
 :root {
+  color-scheme: light;
   --primary: #F5A623;
   --primary-dark: #E8961B;
   --primary-light: #FFF8EC;
@@ -362,7 +364,7 @@ textarea { min-height: 80px; resize: vertical; font-family: monospace; font-size
         </div>
         <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px">数量を入力</label>
         <div style="display:flex; gap:8px; margin-bottom:12px">
-          <input type="text" id="bc-qty-input" inputmode="numeric" pattern="[0-9]*" placeholder="数量" autocomplete="off"
+          <input type="text" id="bc-qty-input" inputmode="numeric" pattern="[0-9]*" placeholder="数量を入力" autocomplete="off"
             style="flex:1; padding:14px 12px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:18px; font-weight:800; text-align:center; background:var(--card); outline:none; transition:border-color .2s;"
             onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" oninput="onBcQtyInput()">
         </div>
@@ -1652,6 +1654,10 @@ function populateBcPropertySelect() {
 }
 
 function focusBarcodeInput() {
+  // マスタ追加モードが起動中なら閉じる
+  if (bcMasterAddMode) {
+    toggleBcMasterAddMode();
+  }
   var input = document.getElementById('bc-scan-input');
   input.value = '';
   input.focus({ preventScroll: true });
@@ -1672,8 +1678,9 @@ function focusBarcodeInput() {
     input.focus({ preventScroll: true });
   }, 500);
 
-  // 入力イベント
+  // 入力イベント（マスタ追加モード中は無視）
   input.onkeydown = function(e) {
+    if (bcMasterAddMode) return;
     if (e.key === 'Enter' || e.key === 'Tab') {
       e.preventDefault();
       processBarcodeInput(input.value.trim());
@@ -1683,6 +1690,7 @@ function focusBarcodeInput() {
   };
   // DataWedge経由の入力にも対応（文字が連続で入る場合）
   input.oninput = function() {
+    if (bcMasterAddMode) return;
     clearTimeout(bcBufferTimer);
     bcBufferTimer = setTimeout(function() {
       var val = input.value.trim();
@@ -1848,6 +1856,12 @@ function toggleBcMasterAddMode() {
   var form = document.getElementById('bc-master-add-form');
   var btn = document.getElementById('bc-master-add-toggle');
   if (form.style.display === 'none') {
+    // バーコード棚卸しスキャンのフォーカス維持を停止（排他制御）
+    if (bcFocusInterval) { clearInterval(bcFocusInterval); bcFocusInterval = null; }
+    // スキャンエリアを初期状態に戻す
+    document.getElementById('bc-scan-area').style.borderColor = '';
+    document.getElementById('bc-scan-area').style.background = '';
+    document.getElementById('bc-scan-label').textContent = t('bc.scanPrompt');
     form.style.display = 'block';
     btn.textContent = '✕ マスタ追加を閉じる';
     bcMasterAddMode = true;
